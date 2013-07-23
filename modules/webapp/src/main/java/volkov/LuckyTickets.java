@@ -1,96 +1,84 @@
 package volkov;
 
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LuckyTickets {
 
+	private static final int MIN_VALUE = 0;
+	private static final int MAX_VALUE = 1000000;
+
 	public static void main(String[] args) {
-		getLuckyNumbers();
+		getLuckyTicketsInRage(args);
 	}
 
-	private static boolean isInteger(String number) {
-		try {
-			Integer.parseInt(number);
-			return true;
-		} catch (NumberFormatException e) {
+	private LuckyTickets() {
+	}
+
+	public static boolean verifyArguments(String[] args) {
+		if (args.length != 2) {
 			return false;
 		}
+		else return true;
 	}
 
-	public static boolean containsWhiteSpace(String value) {
-		if (value != null) {
-			for (int i = 0; i < value.length(); i++) {
-				if (Character.isWhitespace(value.charAt(i))) {
-					return true;
-				}
-			}
+	public static boolean verifyNumber(String value) {
+		try {
+			Integer.parseInt(value);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("The value must be integer number!");
 		}
-		return false;
+		if (Integer.parseInt(value) >= MIN_VALUE
+				&& Integer.parseInt(value) < MAX_VALUE) {
+			return true;
+		} else
+			return false;
 	}
 
-	private static boolean verifyValue(String value) {
-		boolean verifyValue = false;
-		if (!containsWhiteSpace(value) && isInteger(value)
-				&& Integer.parseInt(value) <= 999999
-				&& Integer.parseInt(value) >= 0)
-			verifyValue = true;
-		return verifyValue;
+	public static boolean numberIsLucky(int number) {
+
+		int x1 = number / 100000;
+		int x2 = number % 100000 / 10000;
+		int x3 = number % 10000 / 1000;
+		int y1 = number % 1000 / 100;
+		int y2 = number % 100 / 10;
+		int y3 = number % 10;
+		if (x1 + x2 + x3 == y1 + y2 + y3) {
+			return true;
+		} else
+			return false;
 	}
 
-	private static void showLuckyNumbers(int begin, int end) {
-		int count = 0;
-		System.out.println("Lucky numbers: ");
+	public static List<Integer> getListOfLuckyNumbers(int begin, int end) {
+
+		if (begin > end) {
+			throw new IllegalArgumentException("Begin value must be less than end value!");
+		}
+		List<Integer> listOfLuckyTickets = new ArrayList<>();
 		for (int i = begin; i <= end; i++) {
 
-			int x1 = i / 100000;
-			int x2 = i % 100000 / 10000;
-			int x3 = i % 10000 / 1000;
-			int y1 = i % 1000 / 100;
-			int y2 = i % 100 / 10;
-			int y3 = i % 10;
-
-			if (x1 + x2 + x3 == y1 + y2 + y3) {
-				System.out.format("%06d%n", i);
-				count++;
+			if (numberIsLucky(i)) {
+				listOfLuckyTickets.add(i);
 			}
 		}
-		System.out.println("Found lucky tickets: " + count);
-		System.out.println("In the search of range from: "+ String.format("%06d", begin) + " to: "
-				+ String.format("%06d", end));
+		return listOfLuckyTickets;
 	}
 
-	private static void getLuckyNumbers() {
-		int firstGroupNumbers;
-		int secondGroupNumbers;
-		Scanner scan = new Scanner(System.in);
-		System.out.println("Enter the first group of six-digit numbers:");
-		String valuefirst = scan.nextLine();
-		while (!verifyValue(valuefirst)) {
-			System.out.println(" Input ERROR, try again! \n Enter the first group of six-digit numbers:");
-			valuefirst = scan.nextLine();
+	private static void getLuckyTicketsInRage(String[] value) {
+		if (!verifyArguments(value)){
+			throw new IllegalArgumentException("Was not introduced 2 arguments!");
 		}
-		firstGroupNumbers = Integer.parseInt(valuefirst);
-
-		System.out.println("Enter the second group of six-digit numbers:");
-		String valuesecond = scan.nextLine();
-		while (!verifyValue(valuesecond)) {
-			System.out.println(" Input ERROR, try again! \n Enter the second group of six-digit numbers:");
-			valuesecond = scan.nextLine();
+		if(verifyNumber(value[0]) && verifyNumber(value[1])) {
+			List<Integer> listOfLuckyTickets;
+			listOfLuckyTickets = getListOfLuckyNumbers(
+					Integer.parseInt(value[0]), Integer.parseInt(value[1]));
+			
+			if(listOfLuckyTickets.isEmpty()){
+				System.out.println("In the specified range lucky numbers is absent.");
+			}
+			for (Integer ticket : listOfLuckyTickets) {
+				System.out.format("%06d%n", ticket);
+			}
 		}
-		secondGroupNumbers = Integer.parseInt(valuesecond);
-		scan.close();
-
-		int begin = 0;
-		int end = 0;
-
-		if (firstGroupNumbers > secondGroupNumbers) {
-			begin = secondGroupNumbers;
-			end = firstGroupNumbers;
-		} else {
-			begin = firstGroupNumbers;
-			end = secondGroupNumbers;
-		}
-
-		showLuckyNumbers(begin, end);
 	}
 }
